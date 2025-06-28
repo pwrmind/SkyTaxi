@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyTaxi - Заказ беспилотного аэротакси</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-attachment: fixed;
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            background-color: rgba(44, 62, 80, 0.8);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .app-icon {
+            font-size: 2rem;
+            color: var(--secondary);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--light);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 2px var(--secondary);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .map-placeholder {
+            height: 300px;
+            background: linear-gradient(45deg, #1a2a6c, #2c3e50);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-placeholder::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            background-size: 20px 20px;
+        }
+
+        .map-placeholder i {
+            font-size: 4rem;
+            opacity: 0.3;
+        }
+
+        .order-summary {
+            background: rgba(44, 62, 80, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .order-summary h4 {
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .orders-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .order-card {
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .order-card h3 {
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .order-card p {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 40px;
+            background: rgba(44, 62, 80, 0.4);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            box-shadow: var(--shadow);
+            transform: translateX(200%);
+            transition: transform 0.4s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--accent);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(44, 62, 80, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--secondary);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .price-display {
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 20px 0;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--secondary), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+        }
+
+        .distance-info {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .info-item {
+            padding: 15px;
+        }
+
+        .info-item i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+
+        .info-label {
+            opacity: 0.8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .orders-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .distance-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <header>
+                <h1><i class="fas fa-helicopter app-icon"></i> SkyTaxi - Беспилотное аэротакси</h1>
+                <p>Забронируйте полёт на инновационном беспилотном аэротакси всего в несколько кликов</p>
+            </header>
+
+            <div class="tabs">
+                <div class="tab" :class="{active: activeTab === 'order'}" @click="activeTab = 'order'">Новый заказ</div>
+                <div class="tab" :class="{active: activeTab === 'orders'}" @click="activeTab = 'orders'">Мои заказы</div>
+                <div class="tab" :class="{active: activeTab === 'info'}" @click="activeTab = 'info'">О сервисе</div>
+            </div>
+
+            <div class="tab-content" :class="{active: activeTab === 'order'}">
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-map-marked-alt"></i> Выберите маршрут</h2>
+                    
+                    <div class="map-placeholder">
+                        <i class="fas fa-map"></i>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="from"><i class="fas fa-plane-departure"></i> Откуда:</label>
+                        <input type="text" id="from" v-model="currentOrder.from" placeholder="Введите адрес отправления">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="to"><i class="fas fa-plane-arrival"></i> Куда:</label>
+                        <input type="text" id="to" v-model="currentOrder.to" placeholder="Введите адрес назначения">
+                    </div>
+                    
+                    <div class="distance-info">
+                        <div class="info-item">
+                            <i class="fas fa-ruler-combined"></i>
+                            <div class="info-value">{{ distance }} км</div>
+                            <div class="info-label">Расстояние</div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-clock"></i>
+                            <div class="info-value">{{ duration }} мин</div>
+                            <div class="info-label">Время полёта</div>
+                        </div>
+                    </div>
+                    
+                    <div class="price-display">
+                        Стоимость: {{ price }} ₽
+                    </div>
+                    
+                    <button class="btn btn-primary" @click="showOrderForm = true" :disabled="!currentOrder.from || !currentOrder.to">
+                        <i class="fas fa-check-circle"></i> Заказать аэротакси
+                    </button>
+                </div>
+                
+                <div class="card" v-if="showOrderForm">
+                    <h2 class="card-title"><i class="fas fa-user"></i> Данные для заказа</h2>
+                    
+                    <div class="order-summary">
+                        <h4>Ваш маршрут:</h4>
+                        <div class="order-item">
+                            <span><i class="fas fa-plane-departure"></i> Откуда:</span>
+                            <span>{{ currentOrder.from }}</span>
+                        </div>
+                        <div class="order-item">
+                            <span><i class="fas fa-plane-arrival"></i> Куда:</span>
+                            <span>{{ currentOrder.to }}</span>
+                        </div>
+                        <div class="order-item">
+                            <span><i class="fas fa-wallet"></i> Стоимость:</span>
+                            <span>{{ price }} ₽</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="name"><i class="fas fa-user"></i> Ваше имя:</label>
+                        <input type="text" id="name" v-model="currentOrder.name" placeholder="Введите ваше имя">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone"><i class="fas fa-phone"></i> Номер телефона:</label>
+                        <input type="tel" id="phone" v-model="currentOrder.phone" placeholder="+7 (XXX) XXX-XX-XX">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="time"><i class="fas fa-clock"></i> Время отправления:</label>
+                        <input type="datetime-local" id="time" v-model="currentOrder.time">
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button class="btn btn-primary" @click="submitOrder">
+                            <i class="fas fa-paper-plane"></i> Подтвердить заказ
+                        </button>
+                        <button class="btn btn-outline" @click="showOrderForm = false">
+                            <i class="fas fa-times"></i> Отменить
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" :class="{active: activeTab === 'orders'}">
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-list"></i> Активные заказы</h2>
+                    
+                    <div v-if="orders.length === 0" class="no-orders">
+                        <i class="fas fa-box-open" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <h3>У вас нет активных заказов</h3>
+                        <p>Создайте ваш первый заказ аэротакси на вкладке "Новый заказ"</p>
+                    </div>
+                    
+                    <div class="orders-list">
+                        <div class="order-card" v-for="(order, index) in orders" :key="order.id">
+                            <h3>Заказ #{{ order.id }}</h3>
+                            <p><i class="fas fa-user"></i> <strong>{{ order.name }}</strong></p>
+                            <p><i class="fas fa-phone"></i> {{ order.phone }}</p>
+                            <p><i class="fas fa-plane-departure"></i> {{ order.from }}</p>
+                            <p><i class="fas fa-plane-arrival"></i> {{ order.to }}</p>
+                            <p><i class="fas fa-clock"></i> {{ formatDateTime(order.time) }}</p>
+                            <p><i class="fas fa-wallet"></i> Стоимость: {{ calculatePrice(order.distance) }} ₽</p>
+                            <p><i class="fas fa-hourglass-half"></i> Статус: <span style="color: var(--success);">Ожидает подтверждения</span></p>
+                            
+                            <button class="btn btn-danger" @click="cancelOrder(index)" style="margin-top: 15px; width: 100%;">
+                                <i class="fas fa-ban"></i> Отменить заказ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" :class="{active: activeTab === 'info'}">
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-info-circle"></i> О сервисе SkyTaxi</h2>
+                    
+                    <div style="line-height: 1.8; font-size: 1.1rem;">
+                        <p>SkyTaxi - это инновационный сервис по заказу беспилотных аэротакси, который позволяет вам быстро и комфортно перемещаться по городу, избегая пробок и экономя ваше время.</p>
+                        
+                        <h3 style="margin: 25px 0 15px; color: var(--secondary);">Наши преимущества:</h3>
+                        <ul style="padding-left: 25px; margin-bottom: 25px;">
+                            <li>Быстрое перемещение - в 3-5 раз быстрее наземного транспорта</li>
+                            <li>Экологичность - нулевые выбросы CO2</li>
+                            <li>Безопасность - автоматизированная система управления</li>
+                            <li>Комфорт - просторные салоны с панорамным обзором</li>
+                            <li>Доступность - конкурентоспособные цены</li>
+                        </ul>
+                        
+                        <h3 style="margin: 25px 0 15px; color: var(--secondary);">Как это работает:</h3>
+                        <ol style="padding-left: 25px; margin-bottom: 25px;">
+                            <li>Выберите точки отправления и назначения</li>
+                            <li>Укажите ваши контактные данные</li>
+                            <li>Подтвердите заказ</li>
+                            <li>В указанное время прибывайте на взлетную площадку</li>
+                            <li>Наслаждайтесь полетом!</li>
+                        </ol>
+                        
+                        <div style="background: rgba(44, 62, 80, 0.5); padding: 20px; border-radius: 10px; text-align: center;">
+                            <h3 style="color: var(--secondary); margin-bottom: 15px;">Готовы к полету?</h3>
+                            <button class="btn btn-primary" @click="activeTab = 'order'">
+                                <i class="fas fa-paper-plane"></i> Заказать аэротакси сейчас
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <footer>
+                <p>© 2023 SkyTaxi - Сервис заказа беспилотного аэротакси. Все права защищены.</p>
+            </footer>
+        </div>
+        
+        <div class="notification" :class="{show: showNotification, error: notificationType === 'error'}">
+            <i :class="notificationIcon"></i>
+            {{ notificationMessage }}
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                activeTab: 'order',
+                showOrderForm: false,
+                showNotification: false,
+                notificationMessage: '',
+                notificationType: 'success',
+                currentOrder: {
+                    from: '',
+                    to: '',
+                    name: '',
+                    phone: '',
+                    time: this.getCurrentDateTime(),
+                    distance: 15
+                },
+                orders: []
+            },
+            computed: {
+                distance() {
+                    // Генерируем случайное расстояние от 5 до 50 км
+                    return Math.floor(Math.random() * 45) + 5;
+                },
+                duration() {
+                    // Расчет времени полета (примерно 2 минуты на км +- 20%)
+                    return Math.floor(this.distance * 2 * (0.8 + Math.random() * 0.4));
+                },
+                price() {
+                    return this.calculatePrice(this.distance);
+                },
+                notificationIcon() {
+                    return this.notificationType === 'success' 
+                        ? 'fas fa-check-circle' 
+                        : 'fas fa-exclamation-circle';
+                }
+            },
+            methods: {
+                getCurrentDateTime() {
+                    const now = new Date();
+                    // Форматируем дату для input[type=datetime-local]
+                    return now.toISOString().slice(0, 16);
+                },
+                calculatePrice(distance) {
+                    // Базовая стоимость + цена за км
+                    return Math.round(500 + distance * 100);
+                },
+                formatDateTime(datetime) {
+                    const date = new Date(datetime);
+                    return date.toLocaleString('ru-RU', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+                submitOrder() {
+                    if (!this.currentOrder.name || !this.currentOrder.phone) {
+                        this.showNotification = true;
+                        this.notificationMessage = 'Пожалуйста, заполните все поля';
+                        this.notificationType = 'error';
+                        
+                        setTimeout(() => {
+                            this.showNotification = false;
+                        }, 3000);
+                        return;
+                    }
+                    
+                    // Создаем полный объект заказа
+                    const order = {
+                        id: Date.now(),
+                        ...this.currentOrder,
+                        distance: this.distance,
+                        price: this.price,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Добавляем заказ в список
+                    this.orders.unshift(order);
+                    
+                    // Сохраняем в Local Storage
+                    localStorage.setItem('airTaxiOrders', JSON.stringify(this.orders));
+                    
+                    // Показываем уведомление
+                    this.showNotification = true;
+                    this.notificationMessage = 'Ваш заказ успешно создан!';
+                    this.notificationType = 'success';
+                    
+                    // Сбрасываем форму
+                    this.currentOrder = {
+                        from: '',
+                        to: '',
+                        name: '',
+                        phone: '',
+                        time: this.getCurrentDateTime(),
+                        distance: 15
+                    };
+                    
+                    this.showOrderForm = false;
+                    this.activeTab = 'orders';
+                    
+                    setTimeout(() => {
+                        this.showNotification = false;
+                    }, 3000);
+                },
+                cancelOrder(index) {
+                    if (confirm('Вы уверены, что хотите отменить этот заказ?')) {
+                        this.orders.splice(index, 1);
+                        localStorage.setItem('airTaxiOrders', JSON.stringify(this.orders));
+                        
+                        this.showNotification = true;
+                        this.notificationMessage = 'Заказ успешно отменен';
+                        this.notificationType = 'success';
+                        
+                        setTimeout(() => {
+                            this.showNotification = false;
+                        }, 3000);
+                    }
+                },
+                loadOrders() {
+                    const savedOrders = localStorage.getItem('airTaxiOrders');
+                    if (savedOrders) {
+                        this.orders = JSON.parse(savedOrders);
+                    }
+                }
+            },
+            mounted() {
+                this.loadOrders();
+            }
+        });
+    </script>
+</body>
+</html>
