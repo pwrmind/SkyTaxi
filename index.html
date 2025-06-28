@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -551,29 +552,29 @@
     <script>
         new Vue({
             el: '#app',
-            data: {
-                activeTab: 'order',
-                showOrderForm: false,
-                showNotification: false,
-                notificationMessage: '',
-                notificationType: 'success',
-                currentOrder: {
-                    from: '',
-                    to: '',
-                    name: '',
-                    phone: '',
-                    time: this.getCurrentDateTime(),
-                    distance: 15
-                },
-                orders: []
+            data() {
+                return {
+                    activeTab: 'order',
+                    showOrderForm: false,
+                    showNotification: false,
+                    notificationMessage: '',
+                    notificationType: 'success',
+                    currentOrder: {
+                        from: '',
+                        to: '',
+                        name: '',
+                        phone: '',
+                        time: '', // Инициализация через created
+                        distance: 15
+                    },
+                    orders: []
+                };
             },
             computed: {
                 distance() {
-                    // Генерируем случайное расстояние от 5 до 50 км
                     return Math.floor(Math.random() * 45) + 5;
                 },
                 duration() {
-                    // Расчет времени полета (примерно 2 минуты на км +- 20%)
                     return Math.floor(this.distance * 2 * (0.8 + Math.random() * 0.4));
                 },
                 price() {
@@ -588,11 +589,9 @@
             methods: {
                 getCurrentDateTime() {
                     const now = new Date();
-                    // Форматируем дату для input[type=datetime-local]
                     return now.toISOString().slice(0, 16);
                 },
                 calculatePrice(distance) {
-                    // Базовая стоимость + цена за км
                     return Math.round(500 + distance * 100);
                 },
                 formatDateTime(datetime) {
@@ -617,7 +616,6 @@
                         return;
                     }
                     
-                    // Создаем полный объект заказа
                     const order = {
                         id: Date.now(),
                         ...this.currentOrder,
@@ -626,18 +624,14 @@
                         timestamp: new Date().toISOString()
                     };
                     
-                    // Добавляем заказ в список
                     this.orders.unshift(order);
-                    
-                    // Сохраняем в Local Storage
                     localStorage.setItem('airTaxiOrders', JSON.stringify(this.orders));
                     
-                    // Показываем уведомление
                     this.showNotification = true;
                     this.notificationMessage = 'Ваш заказ успешно создан!';
                     this.notificationType = 'success';
                     
-                    // Сбрасываем форму
+                    // Сброс формы
                     this.currentOrder = {
                         from: '',
                         to: '',
@@ -675,7 +669,9 @@
                     }
                 }
             },
-            mounted() {
+            created() {
+                // Инициализация времени при создании компонента
+                this.currentOrder.time = this.getCurrentDateTime();
                 this.loadOrders();
             }
         });
